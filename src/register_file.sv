@@ -1,29 +1,29 @@
 // Register File (x0 - x31)
 module register_file(
-    input  logic         clk,
-    input  logic         wen,
-    input  logic  [4:0]  ra1,
-    input  logic  [4:0]  ra2,
-    input  logic  [4:0]   wa,
-    input  logic [31:0]   wd,
-    output logic [31:0]  rd1,
-    output logic [31:0]  rd2
+    input  logic            clk,
+    input  logic            wen,
+    input  logic  [4:0]  raddr1,
+    input  logic  [4:0]  raddr2,
+    input  logic  [4:0]   waddr,
+    input  logic [31:0]   wdata,
+    output logic [31:0]  rdata1,
+    output logic [31:0]  rdata2
 );
-    logic [31:0] rf[31:0];
+    logic [31:0] reg_array[31:0];
 
     /************
     * Write Port
     *************/
     always_ff @(posedge clk) begin  // Write on posedge
         if (wen) begin              // Synchronous write
-            rf[wa] <= wd;
+            reg_array[waddr] <= wdata;
         end
     end
 
     /*************
     * Read Ports
     *************/
-    assign rd1 = (ra1 == 5'b0) ? 32'b0 : rf[ra1];   // Register x0 is hardwired with all bits equal to 0
-    assign rd2 = (ra2 == 5'b0) ? 32'b0 : rf[ra2];   // Asynchronous read
+    assign rdata1 = (raddr1 == 5'b0) ? 32'b0 : reg_array[raddr1];   // Register x0 is hardwired with all bits equal to 0
+    assign rdata2 = (raddr2 == 5'b0) ? 32'b0 : reg_array[raddr2];   // Asynchronous read
 
 endmodule
