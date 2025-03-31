@@ -1,6 +1,6 @@
 `timescale 1ns / 100ps
 
-module adder_tb();
+module full_adder_tb();
     parameter WIDTH = 32;        // Width of the adder
     parameter SEED = 1;          // Seed for random number generator
     parameter NUM_TESTS = 10000; // Number of test vectors to generate
@@ -16,9 +16,9 @@ module adder_tb();
     logic clk;
     integer i, errors;
 
-    adder #(
+    full_adder #(
         .WIDTH(WIDTH)
-    ) 
+    )
     DUT (
         .a(a),
         .b(b),

@@ -1,5 +1,5 @@
 // Full Adder
-module adder #(
+module full_adder #(
     parameter WIDTH = 32
 )(
     input  [WIDTH-1:0]    a,
