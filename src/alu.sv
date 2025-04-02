@@ -21,7 +21,9 @@ module alu(
     logic [31:0] slt_result;
     logic [31:0] sltu_result;
 
-    adder adder(
+    full_adder #(
+        .WIDTH(32)
+    ) adder(
         .a(a),
         .b(invert_b),
         .cin(control[3]),
@@ -56,7 +58,7 @@ module alu(
             4'b0001: result = sll_result;
             4'b0100: result = xor_result;
             4'b0101: result = srl_result;
-            4'b1000: result = add_result;
+            4'b1000: result = add_result; // sub
             4'b1010: result = slt_result;
             4'b1011: result = sltu_result;
             4'b1101: result = sra_result;
