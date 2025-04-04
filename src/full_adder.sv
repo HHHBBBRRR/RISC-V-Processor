@@ -8,6 +8,8 @@ module full_adder #(
     output [WIDTH-1:0]  sum,
     output             cout
 );
+    /* verilator lint_off WIDTHEXPAND */
     assign {cout, sum} = a + b + cin;
+    /* verilator lint_on WIDTHEXPAND */
 
 endmodule
