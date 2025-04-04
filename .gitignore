@@ -1,0 +1,11 @@
+# temp files
+*.log
+*.ys
+*.json
+*.vvp
+
+# simulation files
+icarus/
+
+# netlist files
+netlist/
