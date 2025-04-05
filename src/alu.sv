@@ -41,10 +41,8 @@ module alu(
     assign xor_result = a ^ b;
     assign or_result = a | b;
     assign and_result = a & b;
-    /* verilator lint_off WIDTHEXPAND */
-    assign slt_result = negative ^ overflow;
-    assign sltu_result = (!carry);
-    /* verilator lint_on WIDTHEXPAND */
+    assign slt_result = { 31'b0, negative ^ overflow };
+    assign sltu_result = { 31'b0, ~carry };
 
     /*********
     * output
