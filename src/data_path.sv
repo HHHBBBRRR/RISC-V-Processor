@@ -98,6 +98,7 @@ module data_path #(
     ********/
     register_file GPR (
         .clk        (clk),
+        .reset      (reset),
         .wen        (gpr_wen),
         .raddr1     (inst[19:15]),
         .raddr2     (inst[24:20]),
