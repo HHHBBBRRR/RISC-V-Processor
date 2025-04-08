@@ -9,6 +9,7 @@ module processor (
     output logic  [ 3:0]  wmask,
     output logic          wen
 );
+    /* verilator lint_off UNOPTFLAT */
     /* internal signals */
     logic  [ 2:0]  imm_control;
     logic  [ 2:0]  load_control;
@@ -22,6 +23,7 @@ module processor (
     logic          zero;
     logic          carry;
     logic          overflow;
+    /* verilator lint_on UNOPTFLAT */
 
     controller controller_inst (
         .opcode        	(inst[6:0]      ),

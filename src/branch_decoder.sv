@@ -8,12 +8,14 @@ module branch_decoder (
     input  logic  [2:0]   funct3,
     output logic          take_branch
 );
+    /* verilator lint_off UNOPTFLAT */
     logic beq;
     logic bne;
     logic blt;
     logic bge;
     logic bltu;
     logic bgeu;
+    /* verilator lint_on UNOPTFLAT */
     
     assign beq = zero;
     assign bne = ~zero;

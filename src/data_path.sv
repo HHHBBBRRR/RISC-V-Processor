@@ -26,6 +26,7 @@ module data_path #(
     output logic          carry,
     output logic          overflow
 );
+    /* verilator lint_off UNOPTFLAT */
     // Internal signals
     logic [31:0] pc_current;
     logic [31:0] pc_next;
@@ -40,6 +41,7 @@ module data_path #(
     logic [31:0] alu_src_b;
     logic [31:0] alu_result;
     logic [31:0] load_ext;
+    /* verilator lint_on UNOPTFLAT */
 
     /*******
     * PC 
