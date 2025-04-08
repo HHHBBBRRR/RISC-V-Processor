@@ -3,9 +3,17 @@
 *.ys
 *.json
 *.vvp
+*.vcd
 
 # simulation files
 icarus/
 
 # netlist files
 netlist/
+
+# vscode files
+.vscode/
+
+# build files
+build/
+obj_dir/
