@@ -106,7 +106,7 @@ void print_gpr()
     std::cout << std::endl;
 }
 
-void print_pc()
+uint32_t get_pc_from_dpi()
 {
     int pc_value;
 
@@ -115,6 +115,13 @@ void print_pc()
     assert(scope);  // Check for nullptr if scope not found
     svSetScope(scope);
     get_pc(&pc_value);
+
+    return pc_value;
+}
+
+void print_pc()
+{
+    int pc_value = get_pc_from_dpi();
 
     std::cout << std::hex << ANSI_FMT("PC: " << pc_value, ANSI_BG_BLUE) << std::endl;
 }
@@ -124,16 +131,40 @@ bool is_ebreak()
     int pc_value;
     uint32_t instr;
 
-    /* set scope */
-    const svScope scope = svGetScopeFromName("TOP.top.processor_inst.data_path_inst");
-    assert(scope);  // Check for nullptr if scope not found
-    svSetScope(scope);
-
-    get_pc(&pc_value);
+    pc_value = get_pc_from_dpi();
     
     instr = pmem_read(pc_value);
 
     return (instr == 0x00100073);
+}
+
+uint32_t get_a0()  // the am will set ra of main to a0 register
+{
+    int gpr[32];
+
+    /* set scope */
+    const svScope scope = svGetScopeFromName("TOP.top.processor_inst.data_path_inst.GPR");
+    assert(scope); // Check for nullptr if scope not found
+    svSetScope(scope);
+
+    get_gpr(gpr);
+
+    return gpr[10]; // x10 is a0 register
+}
+
+void hit_good_trap()
+{
+    uint32_t a0_value = get_a0();
+    uint32_t pc_value = get_pc_from_dpi(); 
+    
+    if (a0_value == 0)
+    {
+        std::cout << std::hex << ANSI_FMT("Hit good trap at PC = 0x" << pc_value, ANSI_FG_GREEN) << std::endl;
+    }
+    else
+    {
+        std::cout << std::hex << ANSI_FMT("Hit good trap at PC = 0x" << pc_value, ANSI_FG_RED) << std::endl;
+    }
 }
 
 int main(int argc, char *argv[])
@@ -163,6 +194,8 @@ int main(int argc, char *argv[])
         print_pc();
         print_gpr();
     }
+
+    hit_good_trap();
     
     tfp.close();
     std::cout << "Simulation finished." << std::endl;
