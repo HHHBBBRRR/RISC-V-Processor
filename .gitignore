@@ -17,3 +17,4 @@ netlist/
 # build files
 build/
 obj_dir/
+spike_build/
