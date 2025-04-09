@@ -56,6 +56,11 @@ module data_path #(
         .q          (pc_current)
     );
 
+    export "DPI-C" function get_pc;
+    function void get_pc(output int pc_value);
+        pc_value = pc_current;
+    endfunction
+
     mux3 #(
         .WIDTH      (32)
     ) pc_mux3 (

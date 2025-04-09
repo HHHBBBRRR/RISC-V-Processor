@@ -57,6 +57,24 @@ void print_gpr()
     }
 }
 
+void print_pc()
+{
+    int pc_value;
+    get_pc(&pc_value);
+    std::cout << "PC: " << pc_value << std::endl;
+}
+
+bool is_ebreak()
+{
+    int pc_value;
+    uint32_t instr;
+    get_pc(&pc_value);
+    
+    instr = pmem_read(pc_value);
+
+    return (instr == 0x00100073);
+}
+
 int main(int argc, char *argv[])
 {
     if (argc < 2)
@@ -76,9 +94,10 @@ int main(int argc, char *argv[])
 
     reset(dut);
     
-    while (1)
+    while (!is_ebreak())
     {
         one_cycle(dut);
+        print_pc();
         print_gpr();
     }
     
