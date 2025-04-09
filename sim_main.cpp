@@ -205,7 +205,7 @@ int pmem_read(int raddr)
 
     if (addr < 0 || addr >= MSIZE)
     {
-        std::cout << std::hex << "Invalid address: " << addr << std::endl;
+        //std::cout << std::hex << "Invalid address: " << addr << std::endl;
         //throw std::runtime_error("Invalid address");
         return 0;
     }
