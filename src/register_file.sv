@@ -33,4 +33,13 @@ module register_file(
     assign rdata1 = (raddr1 == 5'b0) ? 32'b0 : reg_array[raddr1];   // Register x0 is hardwired with all bits equal to 0
     assign rdata2 = (raddr2 == 5'b0) ? 32'b0 : reg_array[raddr2];   // Asynchronous read
 
+    // DPI-C 导出函数，供 C++ 仿真环境调用，读取寄存器堆数据
+    export "DPI-C" function get_gpr;
+    function void get_gpr(output int gpr[32]);
+        integer j;
+        for (j = 0; j < 32; j = j + 1) begin
+            gpr[j] = reg_array[j];
+        end
+    endfunction
+
 endmodule

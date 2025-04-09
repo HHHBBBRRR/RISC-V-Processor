@@ -11,17 +11,50 @@
 
 #define MBASE 0x8000'0000
 #define MSIZE 0x10'0000 // 1MB
+#define NUM_REGS 32
 
 std::array<uint8_t, MSIZE> mem;
 
 std::uint32_t load_img(std::string_view filename);
 
-#define MAX_SIM_TIME 20
 vluint64_t sim_time = 0;
 
 void reset(Vtop& dut)
 {
     dut.reset = 1;
+    dut.clk = 1;    // starting from low level
+
+    while (sim_time < 10)
+    {
+        dut.clk ^= 1;
+        dut.eval();
+        sim_time++;
+    }
+    
+    dut.reset = 0;
+}
+
+void one_cycle(Vtop& dut)
+{
+    /* level low */
+    dut.clk ^= 1;
+    dut.eval();
+    sim_time++;
+
+    /* level high */
+    dut.clk ^= 1;
+    dut.eval();
+    sim_time++;
+}
+
+void print_gpr()
+{
+    int gpr[32];
+    get_gpr(gpr);
+    for (int i = 0; i < NUM_REGS; i++)
+    {
+        std::cout << "x" << i << ": " << gpr[i] << std::endl;
+    }
 }
 
 int main(int argc, char *argv[])
@@ -41,24 +74,12 @@ int main(int argc, char *argv[])
     dut.trace(&tfp, 5);
     tfp.open("wave.vcd");
 
-    dut.clk = 1;
+    reset(dut);
     
-    while (sim_time < MAX_SIM_TIME) 
+    while (1)
     {
-        dut.clk ^= 1;
-
-        if (sim_time < 5)
-        {
-            reset(dut);
-        }
-        else
-        {
-            dut.reset = 0;
-        }
-
-        dut.eval();
-        tfp.dump(sim_time);
-        sim_time++;
+        one_cycle(dut);
+        print_gpr();
     }
     
     tfp.close();
