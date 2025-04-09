@@ -1,7 +1,9 @@
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <string_view>
 #include <array>
+#include <bitset>
 #include <stdexcept>
 #include <cstdlib>
 #include <verilated.h>
@@ -12,6 +14,35 @@
 #define MBASE 0x8000'0000
 #define MSIZE 0x10'0000 // 1MB
 #define NUM_REGS 32
+
+// ----------- GPR -----------
+const std::array<std::string, NUM_REGS> regs{
+    "$0", "ra", "sp", "gp", "tp", "t0", "t1", "t2",
+    "s0", "s1", "a0", "a1", "a2", "a3", "a4", "a5",
+    "a6", "a7", "s2", "s3", "s4", "s5", "s6", "s7",
+    "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"
+};
+
+// ----------- log -----------
+#define ANSI_FG_BLACK   "\33[1;30m"
+#define ANSI_FG_RED     "\33[1;31m"
+#define ANSI_FG_GREEN   "\33[1;32m"
+#define ANSI_FG_YELLOW  "\33[1;33m"
+#define ANSI_FG_BLUE    "\33[1;34m"
+#define ANSI_FG_MAGENTA "\33[1;35m"
+#define ANSI_FG_CYAN    "\33[1;36m"
+#define ANSI_FG_WHITE   "\33[1;37m"
+#define ANSI_BG_BLACK   "\33[1;40m"
+#define ANSI_BG_RED     "\33[1;41m"
+#define ANSI_BG_GREEN   "\33[1;42m"
+#define ANSI_BG_YELLOW  "\33[1;43m"
+#define ANSI_BG_BLUE    "\33[1;44m"
+#define ANSI_BG_MAGENTA "\33[1;45m"
+#define ANSI_BG_CYAN    "\33[1;46m"
+#define ANSI_BG_WHITE   "\33[1;47m"
+#define ANSI_NONE       "\33[0m"
+
+#define ANSI_FMT(str, fmt) fmt str << ANSI_NONE
 
 std::array<uint8_t, MSIZE> mem;
 
@@ -51,17 +82,22 @@ void print_gpr()
 {
     int gpr[32];
     get_gpr(gpr);
-    for (int i = 0; i < NUM_REGS; i++)
+    for (std::uint32_t i{}; i < NUM_REGS; ++i)
     {
-        std::cout << "x" << i << ": " << gpr[i] << std::endl;
+        std::cout << std::left << std::setw(3) << regs[i] << ": " << std::setw(10) << std::hex << gpr[i] << "\t";
+        if ((i + 1) % 4 == 0)
+        {
+            std::cout << std::endl;
+        }
     }
+    std::cout << std::endl;
 }
 
 void print_pc()
 {
     int pc_value;
     get_pc(&pc_value);
-    std::cout << "PC: " << pc_value << std::endl;
+    std::cout << std::hex << ANSI_FMT("PC: " << pc_value, ANSI_BG_BLUE) << std::endl;
 }
 
 bool is_ebreak()
@@ -92,7 +128,9 @@ int main(int argc, char *argv[])
     dut.trace(&tfp, 5);
     tfp.open("wave.vcd");
 
+    std::cout << "Starting simulation..." << std::endl;
     reset(dut);
+    std::cout << "Finished resetting." << std::endl;
     
     while (!is_ebreak())
     {
@@ -142,8 +180,9 @@ int pmem_read(int raddr)
 
     if (addr < 0 || addr >= MSIZE)
     {
-        std::cout << "Invalid address: " << addr << std::endl;
-        throw std::runtime_error("Invalid address");
+        std::cout << std::hex << "Invalid address: " << addr << std::endl;
+        //throw std::runtime_error("Invalid address");
+        return 0;
     }
 
     data |= mem[addr];
@@ -160,7 +199,7 @@ void pmem_write(int waddr, int wdata, char wmask)
     
     if (addr < 0 || addr >= MSIZE)
     {
-        std::cout << "Invalid address: " << addr << std::endl;
+        std::cout << std::hex << "Invalid address: " << addr << std::endl;
         throw std::runtime_error("Invalid address");
     }
 
@@ -183,7 +222,7 @@ void pmem_write(int waddr, int wdata, char wmask)
     }
     else
     {
-        std::cout << "Invalid write mask: " << wmask << std::endl;
+        std::cout << "Invalid write mask: " << std::bitset<8>(wmask) << std::endl;
         throw std::runtime_error("Invalid write mask");
     }
 }
