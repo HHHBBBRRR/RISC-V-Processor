@@ -10,41 +10,9 @@
 #include <verilated.h>
 #include <verilated_vcd_c.h>
 #include <svdpi.h>
+#include "./include/common.h"
 #include "Vtop.h"
 #include "Vtop__Dpi.h"
-
-#define MBASE 0x8000'0000
-#define MSIZE 0x10'0000 // 1MB
-#define NUM_REGS 32
-
-// ----------- GPR -----------
-const std::array<std::string, NUM_REGS> regs{
-    "$0", "ra", "sp", "gp", "tp", "t0", "t1", "t2",
-    "s0", "s1", "a0", "a1", "a2", "a3", "a4", "a5",
-    "a6", "a7", "s2", "s3", "s4", "s5", "s6", "s7",
-    "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"
-};
-
-// ----------- log -----------
-#define ANSI_FG_BLACK   "\33[1;30m"
-#define ANSI_FG_RED     "\33[1;31m"
-#define ANSI_FG_GREEN   "\33[1;32m"
-#define ANSI_FG_YELLOW  "\33[1;33m"
-#define ANSI_FG_BLUE    "\33[1;34m"
-#define ANSI_FG_MAGENTA "\33[1;35m"
-#define ANSI_FG_CYAN    "\33[1;36m"
-#define ANSI_FG_WHITE   "\33[1;37m"
-#define ANSI_BG_BLACK   "\33[1;40m"
-#define ANSI_BG_RED     "\33[1;41m"
-#define ANSI_BG_GREEN   "\33[1;42m"
-#define ANSI_BG_YELLOW  "\33[1;43m"
-#define ANSI_BG_BLUE    "\33[1;44m"
-#define ANSI_BG_MAGENTA "\33[1;45m"
-#define ANSI_BG_CYAN    "\33[1;46m"
-#define ANSI_BG_WHITE   "\33[1;47m"
-#define ANSI_NONE       "\33[0m"
-
-#define ANSI_FMT(str, fmt) fmt str << ANSI_NONE
 
 std::array<uint8_t, MSIZE> mem;
 
