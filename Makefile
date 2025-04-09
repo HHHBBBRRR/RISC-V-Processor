@@ -22,6 +22,8 @@ build:
 		--exe sim_main.cpp \
 		--trace \
 		--build \
+		-CFLAGS -std=c++20 \
+		-CFLAGS -fpermissive \
 		-j 0
 
 .PHONY:lint
