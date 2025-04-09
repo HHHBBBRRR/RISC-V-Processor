@@ -6,8 +6,10 @@
 #include <bitset>
 #include <stdexcept>
 #include <cstdlib>
+#include <cassert>
 #include <verilated.h>
 #include <verilated_vcd_c.h>
+#include <svdpi.h>
 #include "Vtop.h"
 #include "Vtop__Dpi.h"
 
@@ -81,9 +83,20 @@ void one_cycle(Vtop& dut)
 void print_gpr()
 {
     int gpr[32];
+
+    /* set scope */
+    const svScope scope = svGetScopeFromName("TOP.top.processor_inst.data_path_inst.GPR");
+    assert(scope); // Check for nullptr if scope not found
+    svSetScope(scope);
+
     get_gpr(gpr);
     for (std::uint32_t i{}; i < NUM_REGS; ++i)
     {
+        if (i == 0)
+        {
+            gpr[i] = 0;  // x0 register is always 0, but in hardware I use a mux to select from it.
+        }
+        
         std::cout << std::left << std::setw(3) << regs[i] << ": " << std::setw(10) << std::hex << gpr[i] << "\t";
         if ((i + 1) % 4 == 0)
         {
@@ -96,7 +109,13 @@ void print_gpr()
 void print_pc()
 {
     int pc_value;
+
+    /* set scope */
+    const svScope scope = svGetScopeFromName("TOP.top.processor_inst.data_path_inst");
+    assert(scope);  // Check for nullptr if scope not found
+    svSetScope(scope);
     get_pc(&pc_value);
+
     std::cout << std::hex << ANSI_FMT("PC: " << pc_value, ANSI_BG_BLUE) << std::endl;
 }
 
@@ -104,6 +123,12 @@ bool is_ebreak()
 {
     int pc_value;
     uint32_t instr;
+
+    /* set scope */
+    const svScope scope = svGetScopeFromName("TOP.top.processor_inst.data_path_inst");
+    assert(scope);  // Check for nullptr if scope not found
+    svSetScope(scope);
+
     get_pc(&pc_value);
     
     instr = pmem_read(pc_value);
