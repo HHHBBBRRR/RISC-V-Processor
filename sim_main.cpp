@@ -55,7 +55,7 @@ vluint64_t sim_time = 0;
 void reset(Vtop& dut)
 {
     dut.reset = 1;
-    dut.clk = 1;    // starting from low level
+    dut.clk = 0;    // starting from level high
 
     while (sim_time < 10)
     {
