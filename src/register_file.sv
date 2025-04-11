@@ -16,7 +16,7 @@ module register_file(
     /************
     * Write Port
     *************/
-    always_ff @(posedge clk) begin  // Write on posedge
+    always_ff @(negedge clk) begin  // Write on negedge
         if (reset == 1'b1) begin // Synchronous reset
             for (i = 0; i < 32; i = i + 1) begin
                 reg_array[i] <= 32'b0;
