@@ -16,8 +16,8 @@ module decode_unit (
     output logic  [ 4:0]  D_rd_addr,
     output logic  [31:0]  D_imm_ext,
     /* control signals */
-    input  logic          D_gpr_wen,
-    input  logic  [ 2:0]  D_imm_control  
+    input  logic  [ 2:0]  D_imm_control,
+    input  logic          W_gpr_wen  
 );
     /*******
     * GPR
@@ -25,7 +25,7 @@ module decode_unit (
     register_file GPR (
         .clk        (clk),
         .reset      (reset),
-        .wen        (D_gpr_wen),
+        .wen        (W_gpr_wen),
         .raddr1     (D_inst[19:15]),
         .raddr2     (D_inst[24:20]),
         .waddr      (W_rd_addr),

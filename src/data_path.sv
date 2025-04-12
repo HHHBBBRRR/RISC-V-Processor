@@ -9,14 +9,14 @@ module data_path (
     output logic  [31:0]  address,      // address used for memory read/write
     output logic  [31:0]  write_data,   // data to be written to memory
     /* control signals */
-    input  logic  [ 1:0]  F_pc_src_sel,
     input  logic  [ 2:0]  D_imm_control,
-    input  logic          D_gpr_wen,
     input  logic          E_alu_src_a_sel,
     input  logic          E_alu_src_b_sel,
     input  logic  [ 3:0]  E_alu_control,
+    input  logic  [ 1:0]  E_pc_src_sel,
     input  logic  [ 2:0]  M_load_control,
     input  logic  [ 1:0]  W_rd_src_sel,
+    output  logic         W_gpr_wen,
     /* branch signals */
     output logic          E_negative,
     output logic          E_zero,
@@ -83,7 +83,7 @@ module data_path (
         .E_pc_jalr_target       	(E_pc_jalr_target      ),
         .F_pc_current           	(F_pc_current          ),
         .F_pc_plus_4            	(F_pc_plus_4           ),
-        .F_pc_src_sel           	(F_pc_src_sel          )
+        .E_pc_src_sel           	(E_pc_src_sel          )
     );
 
     assign F_inst = inst;
@@ -111,8 +111,8 @@ module data_path (
         .D_rs2         	(D_rs2        ),
         .D_rd_addr     	(D_rd_addr    ),
         .D_imm_ext     	(D_imm_ext    ),
-        .D_gpr_wen     	(D_gpr_wen    ),
-        .D_imm_control 	(D_imm_control)
+        .D_imm_control 	(D_imm_control),
+        .W_gpr_wen     	(W_gpr_wen    )
     );
     
     /* Decode stage pipeline register */ 

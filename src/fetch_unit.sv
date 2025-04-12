@@ -16,7 +16,7 @@ module fetch_unit #(
     output logic  [31:0]  F_pc_current,
     output logic  [31:0]  F_pc_plus_4,
     /* control signals */
-    input  logic  [ 1:0]  F_pc_src_sel
+    input  logic  [ 1:0]  E_pc_src_sel
 );
     /* verilator lint_off UNOPTFLAT */
     logic [31:0] F_pc_next;
@@ -46,7 +46,7 @@ module fetch_unit #(
         .d0         (F_pc_plus_4),
         .d1         (E_pc_branch_jal_target),
         .d2         (E_pc_jalr_target),
-        .s          (F_pc_src_sel),
+        .s          (E_pc_src_sel),
         .y          (F_pc_next)
     );
 
