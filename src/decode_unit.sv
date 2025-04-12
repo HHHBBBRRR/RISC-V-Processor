@@ -17,7 +17,10 @@ module decode_unit (
     output logic  [31:0]  D_imm_ext,
     /* control signals */
     input  logic  [ 2:0]  D_imm_control,
-    input  logic          W_gpr_wen  
+    input  logic          W_gpr_wen,
+    /* hazard signals */
+    output logic  [ 4:0]  D_rs1_addr,
+    output logic  [ 4:0]  D_rs2_addr
 );
     /*******
     * GPR
@@ -44,5 +47,7 @@ module decode_unit (
     );
 
     assign D_rd_addr = D_inst[11:7];
+    assign D_rs1_addr = D_inst[19:15];
+    assign D_rs2_addr = D_inst[24:20];
     
 endmodule

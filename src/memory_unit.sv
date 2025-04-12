@@ -13,8 +13,22 @@ module memory_unit (
     input  logic  [31:0]  M_write_data,
     output logic  [31:0]  M_load_ext,      // data after load extension
     /* control signals */
-    input  logic  [ 2:0]  M_load_control
+    input  logic  [ 2:0]  M_load_control,
+    /* hazard signals */
+    input  logic  [31:0]  M_pc_auipc_target,
+    input  logic  [31:0]  M_pc_plus_4,
+    input  logic  [ 1:0]  M_rd_src_sel,
+    output logic  [31:0]  M_forward_result
 );
+    always_comb begin
+        case (M_rd_src_sel)
+            2'b00: M_forward_result = M_alu_result;
+            2'b10: M_forward_result = M_pc_auipc_target;
+            2'b11: M_forward_result = M_pc_plus_4;
+            default: M_forward_result = 32'b0;
+        endcase
+    end
+
     /**************************
     * Load data extension unit
     **************************/

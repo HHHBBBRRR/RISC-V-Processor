@@ -23,7 +23,15 @@ module data_path (
     output logic          E_negative,
     output logic          E_zero,
     output logic          E_carry,
-    output logic          E_overflow
+    output logic          E_overflow,
+    /* hazard signals */
+    input  logic  [ 1:0]  E_forward_src_a_sel,
+    input  logic  [ 1:0]  E_forward_src_b_sel,
+    input  logic  [ 1:0]  M_rd_src_sel,
+    output logic  [ 4:0]  E_rs1_addr,
+    output logic  [ 4:0]  E_rs2_addr,
+    output logic  [ 4:0]  M_rd_addr,
+    output logic  [ 4:0]  W_rd_addr
 );
     /* verilator lint_off UNOPTFLAT */
     
@@ -39,6 +47,8 @@ module data_path (
     logic [31:0] D_rs2;
     logic [ 4:0] D_rd_addr;
     logic [31:0] D_imm_ext;
+    logic [ 4:0] D_rs1_addr;
+    logic [ 4:0] D_rs2_addr;
 
     /* Execute stage signals */
     logic [31:0] E_pc_current;
@@ -55,19 +65,19 @@ module data_path (
 
     /* Memory stage signals */
     logic [31:0] M_pc_plus_4;
-    logic [ 4:0] M_rd_addr;
     logic [31:0] M_alu_result;
     logic [31:0] M_write_data;
     logic [31:0] M_pc_auipc_target;
     logic [31:0] M_load_ext;
+    logic [31:0] M_forward_result;
 
     /* Write back stage signals */
     logic [31:0] W_alu_result;
     logic [31:0] W_load_ext;
     logic [31:0] W_pc_auipc_target;
     logic [31:0] W_pc_plus_4;
-    logic [ 4:0] W_rd_addr;
     logic [31:0] W_rd;
+    logic [31:0] W_forward_result;
 
     /* verilator lint_on UNOPTFLAT */
 
@@ -113,17 +123,19 @@ module data_path (
         .D_rd_addr     	(D_rd_addr    ),
         .D_imm_ext     	(D_imm_ext    ),
         .D_imm_control 	(D_imm_control),
-        .W_gpr_wen     	(W_gpr_wen    )
+        .W_gpr_wen     	(W_gpr_wen    ),
+        .D_rs1_addr   	(D_rs1_addr   ),
+        .D_rs2_addr   	(D_rs2_addr   )
     );
     
     /* Decode stage pipeline register */ 
     flopr #(
-        .WIDTH      (165)
+        .WIDTH      (175)
     ) DU_pipe_reg (
         .clk        (clk),
         .reset      (reset),
-        .d          ({D_pc_current, D_pc_plus_4, D_rs1, D_rs2, D_rd_addr, D_imm_ext}),
-        .q          ({E_pc_current, E_pc_plus_4, E_rs1, E_rs2, E_rd_addr, E_imm_ext})
+        .d          ({D_pc_current, D_pc_plus_4, D_rs1, D_rs2, D_rd_addr, D_imm_ext, D_rs1_addr, D_rs2_addr}),
+        .q          ({E_pc_current, E_pc_plus_4, E_rs1, E_rs2, E_rd_addr, E_imm_ext, E_rs1_addr, E_rs2_addr})
     );
 
     /*************
@@ -145,7 +157,11 @@ module data_path (
         .E_write_data           	(E_write_data          ),
         .E_alu_src_a_sel        	(E_alu_src_a_sel       ),
         .E_alu_src_b_sel        	(E_alu_src_b_sel       ),
-        .E_alu_control          	(E_alu_control         )
+        .E_alu_control          	(E_alu_control         ),
+        .E_forward_src_a_sel    	(E_forward_src_a_sel   ),
+        .E_forward_src_b_sel    	(E_forward_src_b_sel   ),
+        .M_forward_result       	(M_forward_result      ),
+        .W_forward_result       	(W_forward_result      )
     );
     
     /* Execute stage pipeline register */
@@ -168,7 +184,11 @@ module data_path (
         .M_alu_result   	(M_alu_result  ),
         .M_write_data   	(M_write_data  ),
         .M_load_ext     	(M_load_ext    ),
-        .M_load_control 	(M_load_control)
+        .M_load_control 	(M_load_control),
+        .M_pc_auipc_target	(M_pc_auipc_target),
+        .M_pc_plus_4    	(M_pc_plus_4    ),
+        .M_rd_src_sel   	(M_rd_src_sel   ),
+        .M_forward_result 	(M_forward_result)
     );
 
     /* Memory stage pipeline register */ 
@@ -190,7 +210,8 @@ module data_path (
         .W_pc_auipc_target 	(W_pc_auipc_target),
         .W_pc_plus_4       	(W_pc_plus_4      ),
         .W_rd              	(W_rd             ),
-        .W_rd_src_sel      	(W_rd_src_sel     )
+        .W_rd_src_sel      	(W_rd_src_sel     ),
+        .W_forward_result  	(W_forward_result  )
     );
 
 endmodule

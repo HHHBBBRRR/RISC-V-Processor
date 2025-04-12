@@ -11,7 +11,9 @@ module writeback_unit (
     input  logic  [31:0]  W_pc_plus_4,
     output logic  [31:0]  W_rd,        // rd data from Write back stage
     /* control signals */
-    input  logic  [ 1:0]  W_rd_src_sel
+    input  logic  [ 1:0]  W_rd_src_sel,
+    /* hazard signals */
+    output logic  [31:0]  W_forward_result
 );
     /****************
     * Write back mux
@@ -26,5 +28,7 @@ module writeback_unit (
         .s          (W_rd_src_sel),
         .y          (W_rd)
     );
+
+    assign W_forward_result = W_rd;
     
 endmodule

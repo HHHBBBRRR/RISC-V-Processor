@@ -22,7 +22,9 @@ module controller (
     output  logic         M_mem_wen,
     output  logic  [3:0]  M_mem_wmask,
     output  logic  [1:0]  W_rd_src_sel,
-    output  logic         W_gpr_wen
+    output  logic         W_gpr_wen,
+    /* hazard signals */
+    output  logic  [1:0]  M_rd_src_sel
 );
     /* Decode stage signals */
     logic  [1:0]  D_alu_op;
@@ -52,7 +54,6 @@ module controller (
     logic         E_gpr_wen;
 
     /* Memory stage signals */
-    logic  [1:0]  M_rd_src_sel;
     logic         M_gpr_wen;
 
     /*************

@@ -24,6 +24,13 @@ module processor (
     logic  [ 2:0]  M_load_control;
     logic  [ 1:0]  W_rd_src_sel;
     logic          W_gpr_wen;
+    logic  [ 1:0]  E_forward_src_a_sel;
+    logic  [ 1:0]  E_forward_src_b_sel;
+    logic  [ 1:0]  M_rd_src_sel;
+    logic  [ 4:0]  E_rs1_addr;
+    logic  [ 4:0]  E_rs2_addr;
+    logic  [ 4:0]  M_rd_addr;
+    logic  [ 4:0]  W_rd_addr;
     /* verilator lint_on UNUSEDSIGNAL */
     /* verilator lint_on UNOPTFLAT */
 
@@ -46,7 +53,8 @@ module processor (
         .M_mem_wen       	(wen              ),
         .M_mem_wmask     	(wmask            ),
         .W_rd_src_sel    	(W_rd_src_sel     ),
-        .W_gpr_wen       	(W_gpr_wen        )
+        .W_gpr_wen       	(W_gpr_wen        ),
+        .M_rd_src_sel    	(M_rd_src_sel     )
     );
        
     data_path data_path_inst(
@@ -69,7 +77,24 @@ module processor (
         .E_negative      	(E_negative       ),
         .E_zero          	(E_zero           ),
         .E_carry         	(E_carry          ),
-        .E_overflow      	(E_overflow       )
+        .E_overflow      	(E_overflow       ),
+        .E_forward_src_a_sel(E_forward_src_a_sel),
+        .E_forward_src_b_sel(E_forward_src_b_sel),
+        .M_rd_src_sel    	(M_rd_src_sel       ),
+        .E_rs1_addr         (E_rs1_addr         ),
+        .E_rs2_addr         (E_rs2_addr         ),
+        .M_rd_addr          (M_rd_addr          ),
+        .W_rd_addr          (W_rd_addr          )
+    );
+
+    hazard_unit hazard_unit_inst(
+        .E_rs1_addr         (E_rs1_addr         ),
+        .E_rs2_addr         (E_rs2_addr         ),
+        .M_rd_addr          (M_rd_addr          ),
+        .W_rd_addr          (W_rd_addr          ),
+        .W_gpr_wen          (W_gpr_wen          ),
+        .E_forward_src_a_sel(E_forward_src_a_sel),
+        .E_forward_src_b_sel(E_forward_src_b_sel)
     );
 
 endmodule
