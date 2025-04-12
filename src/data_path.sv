@@ -1,9 +1,9 @@
-// Data path module
+// Pipelined data path
 module data_path (
     /* external signals */
     input  logic          clk,
     input  logic          reset,
-    input  logic  [31:7]  inst,         // data path will not use inst[7:0] because it's opcode
+    input  logic  [31:0]  inst,         // instruction from memory
     input  logic  [31:0]  read_data,    // raw data from memory
     output logic  [31:0]  pc,           // pc used for instruction fetch
     output logic  [31:0]  address,      // address used for memory read/write
@@ -16,7 +16,9 @@ module data_path (
     input  logic  [ 1:0]  E_pc_src_sel,
     input  logic  [ 2:0]  M_load_control,
     input  logic  [ 1:0]  W_rd_src_sel,
-    output  logic         W_gpr_wen,
+    input  logic          W_gpr_wen,
+    /* instruction opcode signal */
+    output logic  [31:0]  D_inst,
     /* branch signals */
     output logic          E_negative,
     output logic          E_zero,
@@ -26,12 +28,11 @@ module data_path (
     /* verilator lint_off UNOPTFLAT */
     
     /* Fetch stage signals */
-    logic [31:7] F_inst;
+    logic [31:0] F_inst;
     logic [31:0] F_pc_current;
     logic [31:0] F_pc_plus_4;
 
     /* Decode stage signals */
-    logic [31:7] D_inst;
     logic [31:0] D_pc_current;
     logic [31:0] D_pc_plus_4;
     logic [31:0] D_rs1;
@@ -90,7 +91,7 @@ module data_path (
 
     /* Fetch stage pipeline register */
     flopr #(
-        .WIDTH      (89)
+        .WIDTH      (96)
     ) FU_pipe_reg (
         .clk        (clk),
         .reset      (reset),
@@ -104,7 +105,7 @@ module data_path (
     decode_unit DU(
         .clk           	(clk          ),
         .reset         	(reset        ),
-        .D_inst        	(D_inst       ),
+        .D_inst        	(D_inst[31:7] ),
         .W_rd_addr     	(W_rd_addr    ),
         .W_rd          	(W_rd         ),
         .D_rs1         	(D_rs1        ),
