@@ -25,6 +25,7 @@ module controller (
     output  logic         W_gpr_wen,
     /* hazard signals */
     /* Data hazard: forwarding */
+    output  logic         M_gpr_wen,
     output  logic  [1:0]  M_rd_src_sel,
     /* Data hazard: stall */
     input   logic         D_flush_decode_reg,
@@ -55,9 +56,6 @@ module controller (
     logic  [3:0]  E_mem_wmask;
     logic  [2:0]  E_load_control;
     logic         E_gpr_wen;
-
-    /* Memory stage signals */
-    logic         M_gpr_wen;
 
     /*************
     * Decode Unit

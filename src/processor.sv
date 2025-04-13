@@ -29,6 +29,7 @@ module processor (
     logic  [ 1:0]  E_forward_src_a_sel;
     logic  [ 1:0]  E_forward_src_b_sel;
     logic  [ 1:0]  M_rd_src_sel;
+    logic          M_gpr_wen;
     logic  [ 4:0]  E_rs1_addr;
     logic  [ 4:0]  E_rs2_addr;
     logic  [ 4:0]  M_rd_addr;
@@ -69,6 +70,7 @@ module processor (
         .M_mem_wmask     	(wmask            ),
         .W_rd_src_sel    	(W_rd_src_sel     ),
         .W_gpr_wen       	(W_gpr_wen        ),
+        .M_gpr_wen       	(M_gpr_wen        ),
         .M_rd_src_sel    	(M_rd_src_sel     ),
         .D_flush_decode_reg (D_flush_decode_reg ),
         .E_rd_src_sel    	(E_rd_src_sel     )
@@ -115,6 +117,7 @@ module processor (
         .E_rs1_addr         (E_rs1_addr         ),
         .E_rs2_addr         (E_rs2_addr         ),
         .M_rd_addr          (M_rd_addr          ),
+        .M_gpr_wen          (M_gpr_wen          ),
         .W_rd_addr          (W_rd_addr          ),
         .W_gpr_wen          (W_gpr_wen          ),
         .E_forward_src_a_sel(E_forward_src_a_sel),
