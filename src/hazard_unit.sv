@@ -14,9 +14,13 @@ module hazard_unit (
     input  logic  [ 1:0]  E_rd_src_sel,
     output logic          F_stall_pc,
     output logic          F_stall_fetch_reg,
-    output logic          D_flush_decode_reg
+    output logic          D_flush_decode_reg,
+    /* Control hazard */
+    input  logic  [ 1:0]  E_pc_src_sel,
+    output logic          F_flush_fetch_reg             
 );
     logic need_stall;
+    logic control_hazard;
 
     /**************
     * Forwarding
@@ -59,6 +63,20 @@ module hazard_unit (
 
     assign F_stall_pc = need_stall;
     assign F_stall_fetch_reg = need_stall;
-    assign D_flush_decode_reg = need_stall;
+
+    /****************
+    * Control hazard
+    ****************/
+    always_comb begin
+        if (E_pc_src_sel == 2'b01 || E_pc_src_sel == 2'b10) begin
+            control_hazard = 1'b1;
+        end
+        else begin
+            control_hazard = 1'b0;      
+        end
+    end
+
+    assign F_flush_fetch_reg = control_hazard;
+    assign D_flush_decode_reg = need_stall | control_hazard;
  
 endmodule

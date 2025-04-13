@@ -39,7 +39,9 @@ module data_path (
     input  logic          D_flush_decode_reg,
     output logic  [ 4:0]  D_rs1_addr,
     output logic  [ 4:0]  D_rs2_addr,
-    output logic  [ 4:0]  E_rd_addr
+    output logic  [ 4:0]  E_rd_addr,
+    /* control hazard */
+    input  logic          F_flush_fetch_reg
 );
     /* verilator lint_off UNOPTFLAT */
     
@@ -106,12 +108,13 @@ module data_path (
     assign F_inst = inst;
 
     /* Fetch stage pipeline register */
-    flopenr #(
+    flopenrc #(
         .WIDTH      (96)
     ) FU_pipe_reg (
         .clk        (clk),
         .reset      (reset),
         .en         (F_stall_fetch_reg),
+        .clear      (F_flush_fetch_reg),
         .d          ({F_inst, F_pc_current, F_pc_plus_4}),
         .q          ({D_inst, D_pc_current, D_pc_plus_4})
     );

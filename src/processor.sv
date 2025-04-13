@@ -43,6 +43,9 @@ module processor (
     logic  [ 4:0]  E_rd_addr;
     logic  [ 1:0]  E_rd_src_sel;
 
+    /* control hazard */
+    logic          F_flush_fetch_reg;
+
     /* verilator lint_on UNUSEDSIGNAL */
     /* verilator lint_on UNOPTFLAT */
 
@@ -103,7 +106,8 @@ module processor (
         .D_flush_decode_reg (D_flush_decode_reg ),
         .D_rs1_addr         (D_rs1_addr         ),
         .D_rs2_addr         (D_rs2_addr         ),
-        .E_rd_addr          (E_rd_addr          )
+        .E_rd_addr          (E_rd_addr          ),
+        .F_flush_fetch_reg  (F_flush_fetch_reg)
     );
 
     hazard_unit hazard_unit_inst(
@@ -120,7 +124,9 @@ module processor (
         .E_rd_src_sel       (E_rd_src_sel       ),
         .F_stall_pc         (F_stall_pc         ),
         .F_stall_fetch_reg  (F_stall_fetch_reg  ),
-        .D_flush_decode_reg (D_flush_decode_reg )
+        .D_flush_decode_reg (D_flush_decode_reg ),
+        .E_pc_src_sel       (E_pc_src_sel       ),
+        .F_flush_fetch_reg  (F_flush_fetch_reg  )
     );
 
 endmodule
