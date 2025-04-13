@@ -12,6 +12,7 @@ module register_file(
 );
     logic [31:0] reg_array[31:0];
     integer i;
+    logic is_write;
 
     /************
     * Write Port
@@ -21,11 +22,21 @@ module register_file(
             for (i = 0; i < 32; i = i + 1) begin
                 reg_array[i] <= 32'b0;
             end
+            is_write <= 1'b0;
         end 
         else if (wen == 1'b1) begin
             reg_array[waddr] <= wdata;  // Synchronous write
+            is_write <= 1'b1;   // the 'is_write' signal is 1 only on the writeback stage
+        end 
+        else begin
+            is_write <= 1'b0;
         end
     end
+
+    export "DPI-C" function gpr_is_write;
+    function int gpr_is_write();
+        return is_write ? 1 : 0;
+    endfunction
 
     /*************
     * Read Ports
