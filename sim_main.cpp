@@ -84,7 +84,7 @@ void print_gpr()
     int gpr[32];
 
     /* set scope */
-    const svScope scope = svGetScopeFromName("TOP.top.processor_inst.data_path_inst.GPR");
+    const svScope scope = svGetScopeFromName("TOP.top.processor_inst.data_path_inst.DU.GPR");
     assert(scope); // Check for nullptr if scope not found
     svSetScope(scope);
 
@@ -110,7 +110,7 @@ uint32_t get_pc_from_dpi()
     int pc_value;
 
     /* set scope */
-    const svScope scope = svGetScopeFromName("TOP.top.processor_inst.data_path_inst");
+    const svScope scope = svGetScopeFromName("TOP.top.processor_inst.data_path_inst.FU");
     assert(scope);  // Check for nullptr if scope not found
     svSetScope(scope);
     get_pc(&pc_value);
@@ -142,7 +142,7 @@ uint32_t get_a0()  // the am will set ra of main to a0 register
     int gpr[32];
 
     /* set scope */
-    const svScope scope = svGetScopeFromName("TOP.top.processor_inst.data_path_inst.GPR");
+    const svScope scope = svGetScopeFromName("TOP.top.processor_inst.data_path_inst.DU.GPR");
     assert(scope); // Check for nullptr if scope not found
     svSetScope(scope);
 
@@ -295,7 +295,7 @@ void get_dut_context()
     int gpr[32];
 
     /* set scope */
-    const svScope scope = svGetScopeFromName("TOP.top.processor_inst.data_path_inst.GPR");
+    const svScope scope = svGetScopeFromName("TOP.top.processor_inst.data_path_inst.DU.GPR");
     assert(scope); // Check for nullptr if scope not found
     svSetScope(scope);
 
