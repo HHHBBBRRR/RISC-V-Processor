@@ -16,7 +16,9 @@ module fetch_unit #(
     output logic  [31:0]  F_pc_current,
     output logic  [31:0]  F_pc_plus_4,
     /* control signals */
-    input  logic  [ 1:0]  E_pc_src_sel
+    input  logic  [ 1:0]  E_pc_src_sel,
+    /* hazard signals */
+    input  logic          F_stall_pc
 );
     /* verilator lint_off UNOPTFLAT */
     logic [31:0] F_pc_next;
@@ -25,12 +27,13 @@ module fetch_unit #(
     /*******
     * PC 
     ********/
-    flops #(
+    flopens #(
         .WIDTH      (32),
         .SET_VALUE  (PC_START)
     ) pc_reg (
         .clk        (clk),
         .s          (reset),
+        .en         (F_stall_pc), // enable signal set to high
         .d          (F_pc_next),
         .q          (F_pc_current)
     );

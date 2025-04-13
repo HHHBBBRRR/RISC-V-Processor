@@ -25,13 +25,21 @@ module data_path (
     output logic          E_carry,
     output logic          E_overflow,
     /* hazard signals */
+    /* data hazard: forward */
     input  logic  [ 1:0]  E_forward_src_a_sel,
     input  logic  [ 1:0]  E_forward_src_b_sel,
     input  logic  [ 1:0]  M_rd_src_sel,
     output logic  [ 4:0]  E_rs1_addr,
     output logic  [ 4:0]  E_rs2_addr,
     output logic  [ 4:0]  M_rd_addr,
-    output logic  [ 4:0]  W_rd_addr
+    output logic  [ 4:0]  W_rd_addr,
+    /* data hazard: stall */
+    input  logic          F_stall_pc,
+    input  logic          F_stall_fetch_reg,
+    input  logic          D_flush_decode_reg,
+    output logic  [ 4:0]  D_rs1_addr,
+    output logic  [ 4:0]  D_rs2_addr,
+    output logic  [ 4:0]  E_rd_addr
 );
     /* verilator lint_off UNOPTFLAT */
     
@@ -47,15 +55,12 @@ module data_path (
     logic [31:0] D_rs2;
     logic [ 4:0] D_rd_addr;
     logic [31:0] D_imm_ext;
-    logic [ 4:0] D_rs1_addr;
-    logic [ 4:0] D_rs2_addr;
 
     /* Execute stage signals */
     logic [31:0] E_pc_current;
     logic [31:0] E_pc_plus_4;
     logic [31:0] E_rs1;
     logic [31:0] E_rs2;
-    logic [ 4:0] E_rd_addr;
     logic [31:0] E_imm_ext;
     logic [31:0] E_write_data;
     logic [31:0] E_alu_result;
@@ -94,17 +99,19 @@ module data_path (
         .E_pc_jalr_target       	(E_pc_jalr_target      ),
         .F_pc_current           	(F_pc_current          ),
         .F_pc_plus_4            	(F_pc_plus_4           ),
-        .E_pc_src_sel           	(E_pc_src_sel          )
+        .E_pc_src_sel           	(E_pc_src_sel          ),
+        .F_stall_pc             	(F_stall_pc           )
     );
 
     assign F_inst = inst;
 
     /* Fetch stage pipeline register */
-    flopr #(
+    flopenr #(
         .WIDTH      (96)
     ) FU_pipe_reg (
         .clk        (clk),
         .reset      (reset),
+        .en         (F_stall_fetch_reg),
         .d          ({F_inst, F_pc_current, F_pc_plus_4}),
         .q          ({D_inst, D_pc_current, D_pc_plus_4})
     );
@@ -129,11 +136,12 @@ module data_path (
     );
     
     /* Decode stage pipeline register */ 
-    flopr #(
+    floprc #(
         .WIDTH      (175)
     ) DU_pipe_reg (
         .clk        (clk),
         .reset      (reset),
+        .clear      (D_flush_decode_reg),
         .d          ({D_pc_current, D_pc_plus_4, D_rs1, D_rs2, D_rd_addr, D_imm_ext, D_rs1_addr, D_rs2_addr}),
         .q          ({E_pc_current, E_pc_plus_4, E_rs1, E_rs2, E_rd_addr, E_imm_ext, E_rs1_addr, E_rs2_addr})
     );

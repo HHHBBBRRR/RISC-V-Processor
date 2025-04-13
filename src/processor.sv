@@ -24,6 +24,8 @@ module processor (
     logic  [ 2:0]  M_load_control;
     logic  [ 1:0]  W_rd_src_sel;
     logic          W_gpr_wen;
+
+    /* Data hazard: forwarding */
     logic  [ 1:0]  E_forward_src_a_sel;
     logic  [ 1:0]  E_forward_src_b_sel;
     logic  [ 1:0]  M_rd_src_sel;
@@ -31,6 +33,16 @@ module processor (
     logic  [ 4:0]  E_rs2_addr;
     logic  [ 4:0]  M_rd_addr;
     logic  [ 4:0]  W_rd_addr;
+
+    /* Data hazard: stall */
+    logic          F_stall_pc;
+    logic          F_stall_fetch_reg;
+    logic          D_flush_decode_reg;
+    logic  [ 4:0]  D_rs1_addr;
+    logic  [ 4:0]  D_rs2_addr;
+    logic  [ 4:0]  E_rd_addr;
+    logic  [ 1:0]  E_rd_src_sel;
+
     /* verilator lint_on UNUSEDSIGNAL */
     /* verilator lint_on UNOPTFLAT */
 
@@ -54,7 +66,8 @@ module processor (
         .M_mem_wmask     	(wmask            ),
         .W_rd_src_sel    	(W_rd_src_sel     ),
         .W_gpr_wen       	(W_gpr_wen        ),
-        .M_rd_src_sel    	(M_rd_src_sel     )
+        .M_rd_src_sel    	(M_rd_src_sel     ),
+        .E_rd_src_sel    	(E_rd_src_sel     )
     );
        
     data_path data_path_inst(
@@ -84,7 +97,13 @@ module processor (
         .E_rs1_addr         (E_rs1_addr         ),
         .E_rs2_addr         (E_rs2_addr         ),
         .M_rd_addr          (M_rd_addr          ),
-        .W_rd_addr          (W_rd_addr          )
+        .W_rd_addr          (W_rd_addr          ),
+        .F_stall_pc         (F_stall_pc         ),
+        .F_stall_fetch_reg  (F_stall_fetch_reg  ),
+        .D_flush_decode_reg (D_flush_decode_reg ),
+        .D_rs1_addr         (D_rs1_addr         ),
+        .D_rs2_addr         (D_rs2_addr         ),
+        .E_rd_addr          (E_rd_addr          )
     );
 
     hazard_unit hazard_unit_inst(
@@ -94,7 +113,14 @@ module processor (
         .W_rd_addr          (W_rd_addr          ),
         .W_gpr_wen          (W_gpr_wen          ),
         .E_forward_src_a_sel(E_forward_src_a_sel),
-        .E_forward_src_b_sel(E_forward_src_b_sel)
+        .E_forward_src_b_sel(E_forward_src_b_sel),
+        .D_rs1_addr         (D_rs1_addr         ),
+        .D_rs2_addr         (D_rs2_addr         ),
+        .E_rd_addr          (E_rd_addr          ),
+        .E_rd_src_sel       (E_rd_src_sel       ),
+        .F_stall_pc         (F_stall_pc         ),
+        .F_stall_fetch_reg  (F_stall_fetch_reg  ),
+        .D_flush_decode_reg (D_flush_decode_reg )
     );
 
 endmodule

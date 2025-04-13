@@ -24,7 +24,10 @@ module controller (
     output  logic  [1:0]  W_rd_src_sel,
     output  logic         W_gpr_wen,
     /* hazard signals */
-    output  logic  [1:0]  M_rd_src_sel
+    /* Data hazard: forwarding */
+    output  logic  [1:0]  M_rd_src_sel,
+    /* Data hazard: stall */
+    output  logic  [1:0]  E_rd_src_sel
 );
     /* Decode stage signals */
     logic  [1:0]  D_alu_op;
@@ -50,7 +53,6 @@ module controller (
     logic         E_mem_wen;
     logic  [3:0]  E_mem_wmask;
     logic  [2:0]  E_load_control;
-    logic  [1:0]  E_rd_src_sel;
     logic         E_gpr_wen;
 
     /* Memory stage signals */

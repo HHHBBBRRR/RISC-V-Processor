@@ -6,8 +6,18 @@ module hazard_unit (
     input  logic  [ 4:0]  W_rd_addr,
     input  logic          W_gpr_wen,
     output logic  [ 1:0]  E_forward_src_a_sel,
-    output logic  [ 1:0]  E_forward_src_b_sel
+    output logic  [ 1:0]  E_forward_src_b_sel,
+    /* Data hazard: stall */
+    input  logic  [ 4:0]  D_rs1_addr,
+    input  logic  [ 4:0]  D_rs2_addr,
+    input  logic  [ 4:0]  E_rd_addr,
+    input  logic  [ 1:0]  E_rd_src_sel,
+    output logic          F_stall_pc,
+    output logic          F_stall_fetch_reg,
+    output logic          D_flush_decode_reg
 );
+    logic need_stall;
+
     /**************
     * Forwarding
     **************/
@@ -34,5 +44,21 @@ module hazard_unit (
             E_forward_src_b_sel = 2'b00;
         end
     end
-    
+
+    /**************
+    * Stall
+    **************/
+    always_comb begin
+        if (E_rd_src_sel == 2'b01 && (E_rd_addr == D_rs1_addr || E_rd_addr == D_rs2_addr)) begin
+            need_stall = 1'b1;
+        end
+        else begin
+            need_stall = 1'b0;
+        end
+    end
+
+    assign F_stall_pc = need_stall;
+    assign F_stall_fetch_reg = need_stall;
+    assign D_flush_decode_reg = need_stall;
+ 
 endmodule
