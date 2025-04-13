@@ -33,7 +33,7 @@ module fetch_unit #(
     ) pc_reg (
         .clk        (clk),
         .s          (reset),
-        .en         (F_stall_pc), // enable signal set to high
+        .en         (~F_stall_pc), // enable signal set to high
         .d          (F_pc_next),
         .q          (F_pc_current)
     );

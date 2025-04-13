@@ -113,7 +113,7 @@ module data_path (
     ) FU_pipe_reg (
         .clk        (clk),
         .reset      (reset),
-        .en         (F_stall_fetch_reg),
+        .en         (~F_stall_fetch_reg),
         .clear      (F_flush_fetch_reg),
         .d          ({F_inst, F_pc_current, F_pc_plus_4}),
         .q          ({D_inst, D_pc_current, D_pc_plus_4})
