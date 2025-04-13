@@ -70,6 +70,7 @@ module processor (
         .W_rd_src_sel    	(W_rd_src_sel     ),
         .W_gpr_wen       	(W_gpr_wen        ),
         .M_rd_src_sel    	(M_rd_src_sel     ),
+        .D_flush_decode_reg (D_flush_decode_reg ),
         .E_rd_src_sel    	(E_rd_src_sel     )
     );
        

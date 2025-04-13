@@ -27,6 +27,7 @@ module controller (
     /* Data hazard: forwarding */
     output  logic  [1:0]  M_rd_src_sel,
     /* Data hazard: stall */
+    input   logic         D_flush_decode_reg,
     output  logic  [1:0]  E_rd_src_sel
 );
     /* Decode stage signals */
@@ -91,11 +92,12 @@ module controller (
     assign D_branch_decoder_control = D_funct3;
 
     /* Decode stage pipeline register */   
-    flopr #(
+    floprc #(
         .WIDTH 	(23)
     ) DU_pipe_reg (
         .clk   	(clk),
         .reset 	(reset),
+        .clear 	(D_flush_decode_reg),
         .d     	({D_is_branch, D_is_jalr, D_is_jal, D_branch_decoder_control, D_alu_src_a_sel, D_alu_src_b_sel, D_alu_control, D_mem_wen, D_mem_wmask, D_load_control, D_rd_src_sel, D_gpr_wen}),
         .q     	({E_is_branch, E_is_jalr, E_is_jal, E_branch_decoder_control, E_alu_src_a_sel, E_alu_src_b_sel, E_alu_control, E_mem_wen, E_mem_wmask, E_load_control, E_rd_src_sel, E_gpr_wen})
     );
