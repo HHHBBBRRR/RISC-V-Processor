@@ -41,7 +41,7 @@ void (*ref_difftest_exec)(uint64_t n);
 void reset(Vtop& dut)
 {
     dut.reset = 1;
-    dut.clk = 0;    // starting from level high
+    dut.clk = 1;    // starting from level low
 
     while (sim_time < 10)
     {
