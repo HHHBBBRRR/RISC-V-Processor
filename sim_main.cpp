@@ -29,9 +29,10 @@ diff_context_t dut_context;
 diff_context_t ref_context;
 
 void init_difftest(char *ref_so_file, std::string_view img, std::uint64_t img_size);
-bool difftest_step();
+void ref_step();
 void get_dut_context();
-void reg_display(diff_context_t& context);
+void pc_display(diff_context_t& context);
+void gpr_display(diff_context_t& context);
 bool check_dut_ref_regs();
 
 void (*ref_difftest_init)(std::string_view img, std::uint64_t img_size);
@@ -66,17 +67,44 @@ void one_cycle(Vtop& dut)
     sim_time++;
 }
 
-bool difftest_check()
+void dut_step(Vtop &dut)
 {
+    /* set scope */
+    const svScope scope = svGetScopeFromName("TOP.top.processor_inst.data_path_inst.DU.GPR");
+    assert(scope); // Check for nullptr if scope not found
+    svSetScope(scope);
+
+    do
+    {
+        one_cycle(dut);
+    } while (!gpr_is_write());
+
     get_dut_context();
-    bool is_ok = difftest_step();
+}
 
+void difftest_step(Vtop& dut)
+{
+    uint32_t ref_pc;
+    uint32_t instr;
+    std::bitset<7> opcode;
+
+    do
+    {
+        ref_step();
+        ref_pc = ref_context.pc;
+        instr = pmem_read(ref_pc);
+        opcode = instr;
+    } while (opcode == 0b0100011 || opcode == 0b1100011); // store or branch instr
+
+    dut_step(dut);
+
+    std::cout << "-------------------------------------------------------" << std::endl;
+    pc_display(ref_context);
     std::cout << "NPC: " << std::endl;
-    reg_display(dut_context);
+    gpr_display(dut_context);
     std::cout << "SPIKE: " << std::endl;
-    reg_display(ref_context);
-
-    return is_ok;
+    gpr_display(ref_context);
+    std::cout << "-------------------------------------------------------" << std::endl;
 }
 
 void print_gpr()
@@ -127,11 +155,9 @@ void print_pc()
 
 bool is_ebreak()
 {
-    int pc_value;
+    uint32_t pc_value = ref_context.pc;
     uint32_t instr;
-
-    pc_value = get_pc_from_dpi();
-    
+  
     instr = pmem_read(pc_value);
 
     return (instr == 0x00100073);
@@ -151,6 +177,24 @@ uint32_t get_a0()  // the am will set ra of main to a0 register
     return gpr[10]; // x10 is a0 register
 }
 
+/*
+* When we get the 'ebreak' instr, it means the program ends.
+* But we need to wait for the pipeline to finish.
+* So add another 5 cycles.
+*/
+void finish_pipeline(Vtop& dut)
+{   
+    uint32_t cycle = 0;
+
+    while (cycle < 5)
+    {
+        one_cycle(dut);
+        cycle++;
+        print_pc();
+        print_gpr();
+    }
+}
+
 void hit_good_trap()
 {
     uint32_t a0_value = get_a0();
@@ -162,7 +206,7 @@ void hit_good_trap()
     }
     else
     {
-        std::cout << std::hex << ANSI_FMT("Hit good trap at PC = 0x" << pc_value, ANSI_FG_RED) << std::endl;
+        std::cout << std::hex << ANSI_FMT("Hit bad trap at PC = 0x" << pc_value, ANSI_FG_RED) << std::endl;
     }
 }
 
@@ -191,14 +235,17 @@ int main(int argc, char *argv[])
     
     while (!is_ebreak())
     {
-        one_cycle(dut);
+        difftest_step(dut);
         
-        if (!difftest_check())
+        if (!check_dut_ref_regs())
         {
             std::cout << ANSI_FMT("DUT and REF regs are not equal!", ANSI_FG_RED) << std::endl;
             exit(EXIT_FAILURE);
-        }  
+        }
     }
+
+    std::cout << ANSI_FMT("REF hit ebreak", ANSI_FG_YELLOW) << std::endl;
+    finish_pipeline(dut);
 
     hit_good_trap();
     
@@ -313,9 +360,13 @@ void get_dut_context()
     dut_context.pc = get_pc_from_dpi();
 }
 
-void reg_display(diff_context_t& context)
+void pc_display(diff_context_t& context)
 {
 	std::cout << std::hex << ANSI_FMT("PC: " << context.pc, ANSI_BG_BLUE) << std::endl;
+}
+
+void gpr_display(diff_context_t& context)
+{
     for (std::uint32_t i{}; i < NUM_REGS; ++i)
     {
         std::cout << std::left << std::setw(3) << regs[i] << ": " << std::setw(10) << std::hex << context.gpr[i] << "\t";
@@ -330,11 +381,6 @@ void reg_display(diff_context_t& context)
 bool check_dut_ref_regs()
 {
 	bool is_ok{ true };
-
-	if (dut_context.pc != ref_context.pc)
-	{
-		is_ok = false;
-	}
 
 	for (int i{}; i < NUM_REGS; i++)
 	{
@@ -376,10 +422,8 @@ void init_difftest(char *ref_so_file, std::string_view img, std::uint64_t img_si
 	ref_difftest_regcpy(&ref_context, DIRECTION::DIFFTEST_TO_REF);
 }
 
-bool difftest_step()
+void ref_step()
 {
 	ref_difftest_exec(1);
 	ref_difftest_regcpy(&ref_context, DIRECTION::DIFFTEST_TO_DUT);
-
-	return check_dut_ref_regs();
 }
